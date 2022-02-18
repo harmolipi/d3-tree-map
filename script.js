@@ -106,4 +106,15 @@ function callback(videoGameSalesData) {
       tip.hide();
       d3.select(this).style('opacity', 1);
     });
+
+  cell
+    .append('text')
+    .attr('class', 'tile-text')
+    .selectAll('tspan')
+    .data((d) => d.data.name.split(/(?=[A-Z][^A-Z])/g))
+    .enter()
+    .append('tspan')
+    .attr('x', 4)
+    .attr('y', (d, i) => 13 + i * 15)
+    .text((d) => d);
 }
