@@ -117,4 +117,46 @@ function callback(videoGameSalesData) {
     .attr('x', 4)
     .attr('y', (d, i) => 13 + i * 15)
     .text((d) => d);
+
+  const legend = d3
+    .select('#legend-container')
+    .append('svg')
+    .attr('id', 'legend')
+    .attr('width', 500)
+    .attr('y', 100)
+    .style('display', 'block')
+    .style('margin', '0 auto');
+
+  const categories = root
+    .leaves()
+    .map((node) => node.data.category)
+    .filter((category, i, self) => self.indexOf(category) === i);
+
+  const legendElem = legend
+    .append('g')
+    .attr('transform', 'translate(60, 20)')
+    .selectAll('g')
+    .data(categories)
+    .enter()
+    .append('g')
+    .attr(
+      'transform',
+      (d, i) =>
+        `translate(${(i % 4) * 150}, ${
+          Math.floor(i / 4) * 15 + 10 * Math.floor(i / 4)
+        })`
+    );
+
+  legendElem
+    .append('rect')
+    .attr('width', 15)
+    .attr('height', 15)
+    .attr('class', 'legend-item')
+    .attr('fill', (d) => color(d));
+
+  legendElem
+    .append('text')
+    .attr('x', 20)
+    .attr('y', 12)
+    .text((d) => d);
 }
