@@ -28,6 +28,37 @@ const legend = svg
   .attr('id', 'legend')
   .attr('transform', 'translate(20, 20)');
 
+const fader = (color) => d3.interpolateRgb(color, '#fff')(0.2);
+
+const color = d3
+  .scaleOrdinal()
+  .range(
+    [
+      '#1f77b4',
+      '#aec7e8',
+      '#ff7f0e',
+      '#ffbb78',
+      '#2ca02c',
+      '#98df8a',
+      '#d62728',
+      '#ff9896',
+      '#9467bd',
+      '#c5b0d5',
+      '#8c564b',
+      '#c49c94',
+      '#e377c2',
+      '#f7b6d2',
+      '#7f7f7f',
+      '#c7c7c7',
+      '#bcbd22',
+      '#dbdb8d',
+      '#17becf',
+      '#9edae5',
+    ].map(fader)
+  );
+
+const treemap = d3.treemap().size([WIDTH, HEIGHT]).paddingInner(1);
+
 getData();
 
 async function getData() {
@@ -41,4 +72,38 @@ async function getData() {
 
 function callback(videoGameSalesData) {
   console.log(videoGameSalesData);
+
+  const root = d3.hierarchy(videoGameSalesData).sum((d) => d.value);
+  console.log(root);
+
+  treemap(root);
+
+  const cell = svg
+    .selectAll('g')
+    .data(root.leaves())
+    .enter()
+    .append('g')
+    .attr('class', 'group')
+    .attr('transform', (d) => `translate(${d.x0}, ${d.y0})`);
+
+  cell
+    .append('rect')
+    .attr('id', (d) => d.data.id)
+    .attr('class', 'tile')
+    .attr('width', (d) => d.x1 - d.x0)
+    .attr('height', (d) => d.y1 - d.y0)
+    .attr('data-name', (d) => d.data.name)
+    .attr('data-category', (d) => d.data.category)
+    .attr('data-value', (d) => d.data.value)
+    .attr('fill', (d) => color(d.data.category))
+    .on('mouseover', function (event, d) {
+      tip.html(`${d.data.name}<br>${d.data.category}<br>${d.data.value}`);
+      tip.attr('data-value', d.data.value);
+      tip.show(d, this);
+      d3.select(this).style('opacity', 0.5);
+    })
+    .on('mouseout', function () {
+      tip.hide();
+      d3.select(this).style('opacity', 1);
+    });
 }
